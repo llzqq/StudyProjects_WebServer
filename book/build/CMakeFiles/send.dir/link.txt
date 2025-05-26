@@ -1,0 +1,1 @@
+/usr/bin/clang++  -g -O0 -ggdb -Wall  -g -rdynamic CMakeFiles/send.dir/src/4tcp_data_s.cpp.o -o send 

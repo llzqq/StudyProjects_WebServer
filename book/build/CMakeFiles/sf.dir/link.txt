@@ -1,0 +1,1 @@
+/usr/bin/clang++  -g -O0 -ggdb -Wall  -g -rdynamic CMakeFiles/sf.dir/src/8sendfile.cpp.o -o sf 

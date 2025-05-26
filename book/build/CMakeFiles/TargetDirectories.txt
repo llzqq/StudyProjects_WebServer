@@ -1,0 +1,5 @@
+/home/lzq/webserver/book/build/CMakeFiles/curr_try.dir
+/home/lzq/webserver/book/build/CMakeFiles/client.dir
+/home/lzq/webserver/book/build/CMakeFiles/http.dir
+/home/lzq/webserver/book/build/CMakeFiles/edit_cache.dir
+/home/lzq/webserver/book/build/CMakeFiles/rebuild_cache.dir

@@ -1,0 +1,12 @@
+{
+      // clang-format 扩展的配置
+      "editor.formatOnSave": true,
+      "clang-format.style": "file",
+      "clang-format.assumeFilename": "/home/lzq/.clang-format",
+      "clang-format.executable": "/usr/bin/clang-format",
+      "clang-format.fallbackStyle": "Google",
+      "editor.defaultFormatter": "xaver.clang-format",
+      "files.associations": {
+            "cerrno": "cpp"
+      }
+}
