@@ -1,4 +1,5 @@
 #include "stdio.h"
+#include <string>
 
 class Log {
 private:
@@ -25,5 +26,10 @@ int main() {
   printf("output: %d\n", sum);
 
   printf("%d, %d\n", 2 / 80000, 2 % 80000);
+
+  std::string s[1];
+  std::string ss = "abcdefgh";
+  s[0] = ss;
+  printf("%s\n", ss.c_str());
   return 0;
 }

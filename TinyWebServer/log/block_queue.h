@@ -13,6 +13,10 @@
 #include <sys/time.h>
 using namespace std;
 
+// 使用locker 中的 locker 互斥锁保证线程安全，
+// 使用 cond 条件变量阻塞线程直到被唤醒
+// 实现 日志消息的阻塞队列，主线程 push 进队列，日志线程 pop 拿走队首的消息
+// 生产者 - 消费者
 template <class T> class block_queue {
 public:
   block_queue(int max_size = 1000) {
@@ -42,6 +46,7 @@ public:
 
     m_mutex.unlock();
   }
+
   //判断队列是否满了
   bool full() {
     m_mutex.lock();
@@ -53,6 +58,7 @@ public:
     m_mutex.unlock();
     return false;
   }
+
   //判断队列是否为空
   bool empty() {
     m_mutex.lock();
@@ -63,6 +69,7 @@ public:
     m_mutex.unlock();
     return false;
   }
+
   //返回队首元素
   bool front(T &value) {
     m_mutex.lock();
@@ -74,7 +81,8 @@ public:
     m_mutex.unlock();
     return true;
   }
-  //返回队尾元素
+
+  // 返回队尾元素
   bool back(T &value) {
     m_mutex.lock();
     if (0 == m_size) {
@@ -86,6 +94,7 @@ public:
     return true;
   }
 
+  // 返回当前队列长度
   int size() {
     int tmp = 0;
 
@@ -96,6 +105,7 @@ public:
     return tmp;
   }
 
+  // 返回最大队列长度
   int max_size() {
     int tmp = 0;
 
@@ -105,6 +115,7 @@ public:
     m_mutex.unlock();
     return tmp;
   }
+
   //往队列添加元素，需要将所有使用队列的线程先唤醒
   //当有元素push进队列,相当于生产者生产了一个元素
   //若当前没有线程等待条件变量,则唤醒无意义
@@ -123,11 +134,13 @@ public:
 
     m_size++;
 
-    m_cond.broadcast();
-    m_mutex.unlock();
+    m_cond.broadcast(); // 让进入wait的线程被唤醒，竞争锁
+    m_mutex.unlock();   // 只有一个等待线程能获取到锁
     return true;
   }
+
   // pop时,如果当前队列没有元素,将会等待条件变量
+  // pop 是取队首的元素
   bool pop(T &item) {
     m_mutex.lock();
     while (m_size <= 0) {
@@ -138,7 +151,7 @@ public:
       }
     }
 
-    m_front = (m_front + 1) % m_max_size;
+    m_front = (m_front + 1) % m_max_size; // 实现更新队首
     item = m_array[m_front];
     m_size--;
     m_mutex.unlock();
@@ -175,7 +188,9 @@ public:
 private:
   locker m_mutex;
   cond m_cond;
-
+  /*定义为T类型的指针，也可以理解为定义了一个数组的头部，但是是空指针
+  然后分配内存 m_array = new T[max_size]
+  之后可以通过m_array[n]来访问各个数组*/
   T *m_array;
   int m_size;
   int m_max_size;

@@ -45,14 +45,29 @@ void sig_handler(int sig) {
   errno = save_errno;
 }
 
-//设置信号函数
+/**
+ * @brief 封装 sigaction
+ *
+ * @param sig 要处理的信号类型如SIGPIPE、SIGALRM、SIGTERM等
+ *
+ * @param handler 信号处理函数指针；
+ * 可以是自定义函数如sig_handler；
+ * 也可以是系统预定义的如SIG_IGN（忽略信号）
+ *
+ * @param restart 是否设置自动重启标志；
+ * true：被信号中断的系统调用会自动重启；
+ * false：被信号中断的系统调用直接返回错误
+ */
 void addsig(int sig, void(handler)(int), bool restart = true) {
   struct sigaction sa;
   memset(&sa, '\0', sizeof(sa));
   sa.sa_handler = handler;
   if (restart)
     sa.sa_flags |= SA_RESTART;
+  //在处理当前信号期间，阻塞所有其他信号；确保信号处理的原子性，避免信号处理函数被其他信号中断
   sigfillset(&sa.sa_mask);
+  // sigaction 注册成功时返回0，失败则返回-1并设置errno。
+  // assert 条件为真：程序继续正常执行；条件为假：程序立即终止，并输出错误信息
   assert(sigaction(sig, &sa, NULL) != -1);
 }
 
@@ -94,6 +109,9 @@ int main(int argc, char *argv[]) {
 
   int port = atoi(argv[1]);
 
+  // 忽略SIGPIPE信号
+  // SIGPIPE：当向已关闭的socket写数据时产生
+  // 忽略此信号避免服务器因客户端异常断开而崩溃
   addsig(SIGPIPE, SIG_IGN);
 
   //创建数据库连接池
@@ -101,9 +119,9 @@ int main(int argc, char *argv[]) {
   connPool->init("localhost", "lzq", "lzq", "lzqdb", 3306, 8);
 
   //创建线程池
-  threadpool<http_conn> *pool = NULL;
+  threadpool<http_conn> *pool = NULL; // 只声明了一个变量
   try {
-    pool = new threadpool<http_conn>(connPool);
+    pool = new threadpool<http_conn>(connPool); // 这里才分配内存，创建了对象
   } catch (...) {
     return 1;
   }
@@ -111,9 +129,10 @@ int main(int argc, char *argv[]) {
   http_conn *users = new http_conn[MAX_FD];
   assert(users);
 
-  //初始化数据库读取表
+  //初始化数据库读取表，方便后续执行注册与登陆操作
   users->initmysql_result(connPool);
 
+  /*初始化监听 socket*/
   int listenfd = socket(PF_INET, SOCK_STREAM, 0);
   assert(listenfd >= 0);
 
@@ -125,7 +144,8 @@ int main(int argc, char *argv[]) {
   struct sockaddr_in address;
   bzero(&address, sizeof(address));
   address.sin_family = AF_INET;
-  address.sin_addr.s_addr = htonl(INADDR_ANY);
+  address.sin_addr.s_addr =
+      htonl(INADDR_ANY); // 监听本机上所有可用的网络接口的入站连接请求
   address.sin_port = htons(port);
 
   int flag = 1;

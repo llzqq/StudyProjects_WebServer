@@ -40,7 +40,8 @@ public:
 private:
   Log();
   virtual ~Log();
-  void *async_write_log() {
+
+  void *async_write_log() { // 异步 asynchronous；同步 synchronous
     string single_log;
     //从阻塞队列中取出一个日志string，写入文件
     while (m_log_queue->pop(single_log)) {

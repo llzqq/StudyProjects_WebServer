@@ -63,6 +63,13 @@
             "streambuf": "cpp",
             "cinttypes": "cpp",
             "typeinfo": "cpp",
-            "variant": "cpp"
+            "variant": "cpp",
+            "condition_variable": "cpp",
+            "future": "cpp",
+            "mutex": "cpp",
+            "shared_mutex": "cpp",
+            "cassert": "cpp",
+            "*.txx": "cpp",
+            "bitset": "cpp"
       }
 }

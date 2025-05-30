@@ -4,5 +4,8 @@ server: main.cpp ./threadpool/threadpool.h ./http/http_conn.cpp ./http/http_conn
 lzq_in_log: test_lzq/in_log.cpp
 	g++ -o lzq_in_log test_lzq/in_log.cpp
 
+lzq_in_threadpool: test_lzq/in_threadpool.cpp
+	g++ -o lzq_in_threadpool test_lzq/in_threadpool.cpp
+
 clean:
 	rm  -r server
