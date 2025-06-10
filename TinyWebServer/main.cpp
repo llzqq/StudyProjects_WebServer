@@ -160,11 +160,13 @@ int main(int argc, char *argv[]) {
   epollfd = epoll_create(5);
   assert(epollfd != -1);
 
-  addfd(epollfd, listenfd, false);
+  addfd(epollfd, listenfd, false); // 将 listenfd 注册到 epollfd内核事件表
   http_conn::m_epollfd = epollfd;
 
   //创建管道
-  ret = socketpair(PF_UNIX, SOCK_STREAM, 0, pipefd);
+  ret =
+      socketpair(PF_UNIX, SOCK_STREAM, 0, pipefd); // int pipefd[2]是声明
+                                                   //需要函数赋予功能后才能读写
   assert(ret != -1);
   setnonblocking(pipefd[1]);
   addfd(epollfd, pipefd[0], false);
